@@ -12,7 +12,7 @@ Source0:	http://rubyforge.org/frs/download.php/3089/%{name}-%{version}.tar.bz2
 URL:		http://sqlite-ruby.sourceforge.net
 BuildRequires:	ruby
 BuildRequires:	sqlite3-devel
-BuildRequires:	swig-ruby
+BuildRequires:	swig
 Requires:	ruby
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
