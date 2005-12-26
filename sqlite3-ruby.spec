@@ -1,5 +1,3 @@
-%define ruby_archdir    %(ruby -r rbconfig -e 'print Config::CONFIG["archdir"]')
-%define ruby_rubylibdir %(ruby -r rbconfig -e 'print Config::CONFIG["rubylibdir"]')
 Summary:	SQLite3 module for Ruby
 Summary(pl):	Modu³ SQLite3 dla Ruby
 Name:		sqlite3-ruby
@@ -10,6 +8,7 @@ Group:		Development/Languages
 Source0:	http://rubyforge.org/frs/download.php/3089/%{name}-%{version}.tar.bz2
 # Source0-md5:	83c6c16dc40a282931edfd0525d3aaf3
 URL:		http://sqlite-ruby.sourceforge.net
+BuildRequires:	rpmbuild(macros) >= 1.272
 BuildRequires:	ruby
 BuildRequires:	sqlite3-devel
 BuildRequires:	swig-ruby >= 1.3.25
@@ -23,7 +22,7 @@ SQLite3 module for Ruby.
 Modu³ SQLite3 dla Ruby.
 
 %prep
-%setup -q 
+%setup -q
 
 %build
 ruby setup.rb config --site-ruby=%{ruby_rubylibdir} --so-dir=%{ruby_archdir}
