@@ -2,17 +2,17 @@ Summary:	SQLite3 module for Ruby
 Summary(pl):	Modu³ SQLite3 dla Ruby
 Name:		sqlite3-ruby
 Version:	1.1.0
-Release:	1
+Release:	2
 License:	GPL
 Group:		Development/Languages
 Source0:	http://rubyforge.org/frs/download.php/3089/%{name}-%{version}.tar.bz2
 # Source0-md5:	83c6c16dc40a282931edfd0525d3aaf3
 URL:		http://sqlite-ruby.sourceforge.net
 BuildRequires:	rpmbuild(macros) >= 1.272
-BuildRequires:	ruby
+BuildRequires:	ruby-modules
 BuildRequires:	sqlite3-devel
 BuildRequires:	swig-ruby >= 1.3.25
-Requires:	ruby
+Requires:	ruby-modules
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
