@@ -1,5 +1,5 @@
 Summary:	SQLite3 module for Ruby
-Summary(pl):	Modu≥ SQLite3 dla Ruby
+Summary(pl.UTF-8):   Modu≈Ç SQLite3 dla Ruby
 Name:		sqlite3-ruby
 Version:	1.1.0
 Release:	2
@@ -18,8 +18,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %description
 SQLite3 module for Ruby.
 
-%description -l pl
-Modu≥ SQLite3 dla Ruby.
+%description -l pl.UTF-8
+Modu≈Ç SQLite3 dla Ruby.
 
 %prep
 %setup -q
