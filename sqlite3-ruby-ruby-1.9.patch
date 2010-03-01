@@ -1,0 +1,105 @@
+diff --git a/ext/sqlite3_api/sqlite3_api.i b/ext/sqlite3_api/sqlite3_api.i
+index 5e103de..d59b3ca 100644
+--- a/ext/sqlite3_api/sqlite3_api.i
++++ b/ext/sqlite3_api/sqlite3_api.i
+@@ -16,6 +16,31 @@
+ #define STR2CSTR StringValueCStr
+ #endif
+ 
++// Different string conversions for ruby 1.8 and ruby 1.9. For 1.9,
++// we need to set the encoding of the string. Stolen from Redcloth.
++
++#ifdef HAVE_RUBY_ENCODING_H
++
++// For Ruby 1.9
++#include "ruby/encoding.h"
++#define STR_NEW(p,n) rb_enc_str_new((p),(n),rb_utf8_encoding())
++#define STR_NEW2(p) rb_enc_str_new((p),strlen(p),rb_utf8_encoding())
++// TODO: using ASCII-8BIT for UTF-16 encoding. There's no function
++// like rb_utf16_encoding(), we need also to determine which UTF-16
++// we want to use (LE, BE)
++#define STR_NEW_UTF_16(p,n) rb_str_new((p),(n))
++#define STR_NEW_ASCII_8BIT(p,n) rb_str_new((p),(n))
++
++#else
++
++// For Ruby 1.8
++#define STR_NEW(p,n) rb_str_new((p),(n))
++#define STR_NEW2(p) rb_str_new2((p))
++#define STR_NEW_UTF_16(p,n) rb_str_new((p),(n))
++#define STR_NEW_ASCII_8BIT(p,n) rb_str_new((p),(n))
++
++#endif
++
+ #define Init_API Init_sqlite3_api
+ 
+ struct CallbackData {
+@@ -53,15 +78,15 @@ int Sqlite3_ruby_authorizer(void* data,int type,
+   CallbackData *cb = (CallbackData*)data;
+   result = rb_funcall(
+     cb->proc, rb_intern("call"), 6, cb->data, INT2FIX(type),
+-    ( a ? rb_str_new2(a) : Qnil ), ( b ? rb_str_new2(b) : Qnil ),
+-    ( c ? rb_str_new2(c) : Qnil ), ( d ? rb_str_new2(d) : Qnil ) );
++    ( a ? STR_NEW2(a) : Qnil ), ( b ? STR_NEW2(b) : Qnil ),
++    ( c ? STR_NEW2(c) : Qnil ), ( d ? STR_NEW2(d) : Qnil ) );
+   return FIX2INT(result);
+ }
+ 
+ void Sqlite3_ruby_trace(void* data, const char *sql) {
+   CallbackData *cb = (CallbackData*)data;
+   rb_funcall( cb->proc, rb_intern("call"), 2, cb->data,
+-    sql ? rb_str_new2(sql) : Qnil );
++    sql ? STR_NEW2(sql) : Qnil );
+ }
+ 
+ void Sqlite3_ruby_function_step(sqlite3_context* ctx,int n,
+@@ -154,19 +179,19 @@ struct CallbackData {
+ typedef void RUBY_BLOB;
+ %typemap(out) const RUBY_BLOB * {
+   $result = $1 ?
+-    rb_str_new( (char*)$1, sqlite3_column_bytes( arg1, arg2 ) ) : Qnil;
++    STR_NEW( (char*)$1, sqlite3_column_bytes( arg1, arg2 ) ) : Qnil;
+ }
+ 
+ typedef void RUBY_VALBLOB;
+ %typemap(out) const RUBY_VALBLOB * {
+-  $result = $1 ? rb_str_new( (char*)$1, sqlite3_value_bytes( arg1 ) ) : Qnil;
++  $result = $1 ? STR_NEW_ASCII_8BIT( (char*)$1, sqlite3_value_bytes( arg1 ) ) : Qnil;
+ }
+ 
+ %typemap(out) const void * {
+   int i;
+   if( $1 ) {
+     for( i = 0; ((char*)$1)[i]; i += 2 );
+-    $result = rb_str_new( (char*)$1, i );
++    $result = STR_NEW_UTF_16( (char*)$1, i );
+   } else $result = Qnil;
+ }
+ 
+@@ -182,7 +207,7 @@ typedef void RUBY_VALBLOB;
+   ary = rb_ary_new2(3);
+   rb_ary_push( ary, $result );
+   rb_ary_push( ary, SWIG_NewPointerObj( stmt2, SWIGTYPE_p_sqlite3_stmt, 0 ) );
+-  rb_ary_push( ary, errmsg2 ? rb_str_new2( errmsg2 ) : Qnil );
++  rb_ary_push( ary, errmsg2 ? STR_NEW2( errmsg2 ) : Qnil );
+   $result = ary;
+ }
+ 
+@@ -202,7 +227,7 @@ typedef void RUBY_VALBLOB;
+   ary = rb_ary_new2(3);
+   rb_ary_push( ary, $result );
+   rb_ary_push( ary, SWIG_NewPointerObj( stmt2, SWIGTYPE_p_sqlite3_stmt, 0 ) );
+-  rb_ary_push( ary, errmsg2 ? rb_str_new( (char*)errmsg2, i ) : Qnil );
++  rb_ary_push( ary, errmsg2 ? STR_NEW_UTF_16( (char*)errmsg2, i ) : Qnil );
+   $result = ary;
+ }
+ 
+@@ -244,7 +269,7 @@ typedef void RUBY_VALBLOB;
+ }
+ 
+ %typemap(out) const char * {
+-  $result = $1 ? rb_str_new2($1) : Qnil;
++  $result = $1 ? STR_NEW2($1) : Qnil;
+ }
+ 
+ %typemap(in) sqlite_int64 {
