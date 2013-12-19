@@ -1,15 +1,17 @@
+%define pkgname sqlite3
 Summary:	SQLite3 module for Ruby
 Summary(pl.UTF-8):	Moduł SQLite3 dla Ruby
-Name:		sqlite3-ruby
+Name:		%{pkgname}-ruby
 Version:	1.2.5
-Release:	1
+Release:	2
 License:	GPL
 Group:		Development/Languages
 Source0:	http://rubygems.org/downloads/%{name}-%{version}.gem
 # Source0-md5:	eaa6328b0e971f4563f8d26715e37e13
 Patch0:		%{name}-ruby-1.9.patch
 URL:		http://rubyforge.org/projects/sqlite-ruby/
-BuildRequires:	rpmbuild(macros) >= 1.277
+BuildRequires:	rpm-rubyprov
+BuildRequires:	rpmbuild(macros) >= 1.665
 BuildRequires:	ruby-devel
 BuildRequires:	setup.rb
 BuildRequires:	sqlite3-devel
@@ -49,31 +51,33 @@ ri documentation for %{name}.
 Dokumentacji w formacie ri dla %{name}.
 
 %prep
-%setup -q -c
-%{__tar} xf %{SOURCE0} -O data.tar.gz | %{__tar} xz
-find -newer README.txt -o -print | xargs touch --reference %{SOURCE0}
+%setup -q -n %{pkgname}-%{version}
 %patch0 -p1
 
-cp /usr/share/setup.rb .
+cp -p /usr/share/setup.rb .
 
 %build
 swig -ruby \
 	-o ext/sqlite3_api/sqlite3_api_wrap.c \
 	ext/sqlite3_api/sqlite3_api.i
 
-ruby setup.rb config --site-ruby=%{ruby_rubylibdir} --so-dir=%{ruby_archdir}
+ruby setup.rb config \
+	--site-ruby=%{ruby_vendorlibdir} \
+	--so-dir=%{ruby_vendorarchdir}
 ruby setup.rb setup
 
 rdoc --ri --op ri lib
 rdoc --op rdoc lib
 rm -r ri/{DL,Kernel,String}
 rm ri/created.rid
+rm ri/cache.ri
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{ruby_rubylibdir},%{ruby_ridir},%{ruby_rdocdir}}
 
-ruby setup.rb install --prefix=$RPM_BUILD_ROOT
+ruby setup.rb install \
+	--prefix=$RPM_BUILD_ROOT
 
 cp -a ri/* $RPM_BUILD_ROOT%{ruby_ridir}
 cp -a rdoc $RPM_BUILD_ROOT%{ruby_rdocdir}/%{name}-%{version}
@@ -84,9 +88,9 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc README*
-%attr(755,root,root) %{ruby_archdir}/*
-%{ruby_rubylibdir}/sqlite3.rb
-%{ruby_rubylibdir}/sqlite3
+%attr(755,root,root) %{ruby_vendorarchdir}/sqlite3_api.so
+%{ruby_vendorlibdir}/sqlite3.rb
+%{ruby_vendorlibdir}/sqlite3
 
 %files rdoc
 %defattr(644,root,root,755)
