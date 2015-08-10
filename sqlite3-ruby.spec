@@ -3,7 +3,7 @@ Summary:	SQLite3 module for Ruby
 Summary(pl.UTF-8):	Moduł SQLite3 dla Ruby
 Name:		%{pkgname}-ruby
 Version:	1.2.5
-Release:	3
+Release:	4
 License:	GPL
 Group:		Development/Languages
 Source0:	http://rubygems.org/downloads/%{name}-%{version}.gem
