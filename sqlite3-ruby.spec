@@ -16,7 +16,6 @@ BuildRequires:	ruby-devel
 BuildRequires:	setup.rb
 BuildRequires:	sqlite3-devel
 BuildRequires:	swig-ruby >= 1.3.25
-%{?ruby_mod_ver_requires_eq}
 Obsoletes:	ruby-sqlite3
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -31,6 +30,9 @@ Summary:	HTML documentation for %{name}
 Summary(pl.UTF-8):	Dokumentacja w formacie HTML dla %{name}
 Group:		Documentation
 Requires:	ruby >= 1:1.8.7-4
+%if "%{_rpmversion}" >= "5"
+BuildArch:	noarch
+%endif
 
 %description rdoc
 HTML documentation for %{name}.
@@ -43,6 +45,9 @@ Summary:	ri documentation for %{name}
 Summary(pl.UTF-8):	Dokumentacja w formacie ri dla %{name}
 Group:		Documentation
 Requires:	ruby
+%if "%{_rpmversion}" >= "5"
+BuildArch:	noarch
+%endif
 
 %description ri
 ri documentation for %{name}.
@@ -54,7 +59,7 @@ Dokumentacji w formacie ri dla %{name}.
 %setup -q -n %{pkgname}-%{version}
 %patch0 -p1
 
-cp -p /usr/share/setup.rb .
+cp -p %{_datadir}/setup.rb .
 
 %build
 swig -ruby \
@@ -74,7 +79,7 @@ rm ri/cache.ri
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{ruby_rubylibdir},%{ruby_ridir},%{ruby_rdocdir}}
+install -d $RPM_BUILD_ROOT{%{ruby_ridir},%{ruby_rdocdir}}
 
 ruby setup.rb install \
 	--prefix=$RPM_BUILD_ROOT
